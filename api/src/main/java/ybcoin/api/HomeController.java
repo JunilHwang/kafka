@@ -2,10 +2,7 @@ package ybcoin.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,16 +15,16 @@ public class HomeController {
     @Autowired
     KafkaTemplate kafkaTemplate;
 
-    @RequestMapping(value="/set", method = RequestMethod.POST)
+    @GetMapping(value="/get/{key}")
     public String setData(){
         return "success";
     }
 
-    @RequestMapping(value="/get")
-    public String getData(@RequestParam(value = "message", required = true, defaultValue = "") String message ){
-        LocalDateTime date = LocalDateTime.now();
-        String dateStr = date.format(fmt);
-        kafkaTemplate.send("mytopic", dateStr + "   " + message);
-        return "kafkaTemplate.send >>  " + message ;
+    @GetMapping(value="/set/{topic}/{key}/{value}")
+    public String getData(@PathVariable("topic") String topic,
+                          @PathVariable("key") String key,
+                          @PathVariable("value") String value){
+        kafkaTemplate.send(topic, key, value);
+        return String.format("%s > %s : %s", topic, key, value);
     }
 }
